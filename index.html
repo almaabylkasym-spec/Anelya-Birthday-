@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday, Anelya</title>
+
+  <style>
+    :root{
+      --bg:#050207;
+      --bg2:#130512;
+      --pink:#ff4fa3;
+      --pink-light:#ff8dc7;
+      --purple:#b84dff;
+      --white:#fff7fb;
+      --card:rgba(33, 10, 28, 0.72);
+      --card-border:rgba(255,255,255,.12);
+      --shadow:0 0 20px rgba(255,79,163,.35), 0 0 40px rgba(184,77,255,.15);
+    }
+
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,body{
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      font-family:"Trebuchet MS","Segoe UI",Arial,sans-serif;
+      background:
+        radial-gradient(circle at center,#120414 0%,#09020a 55%,#020103 100%);
+      color:var(--white);
+    }
+
+    #app{
+      position:relative;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 50% 40%,rgba(255,0,120,.08),transparent 25%),
+        radial-gradient(circle at 60% 52%,rgba(180,77,255,.08),transparent 30%),
+        linear-gradient(180deg,#09030a 0%,#030105 100%);
+    }
+
+    canvas{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      display:block;
+    }
+
+    .noise{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:.05;
+      background-image:
+        radial-gradient(circle,rgba(255,255,255,.7) 1px,transparent 1px);
+      background-size:18px 18px;
+      mix-blend-mode:screen;
+    }
+
+    .top-title{
+      position:absolute;
+      top:18px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:20;
+      text-align:center;
+      pointer-events:none;
+      width:90%;
+    }
+
+    .top-title small{
+      display:block;
+      font-size:12px;
+      letter-spacing:3px;
+      color:#ffd1e9;
+      opacity:.9;
+      margin-bottom:4px;
+      text-transform:uppercase;
+    }
+
+    .top-title h1{
+      font-size:clamp(22px,5vw,40px);
+      font-weight:700;
+      letter-spacing:1px;
+      text-shadow:0 0 12px rgba(255,105,180,.5);
+    }
+
+    .subtitle{
+      margin-top:6px;
+      font-size:clamp(12px,2.8vw,15px);
+      color:#ffd8ed;
+      opacity:.88;
+    }
+
+    .orbit-texts{
+      position:absolute;
+      inset:0;
+      z-index:12;
+      pointer-events:none;
+    }
+
+    .orbit-word{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      color:#ffd7ec;
+      font-size:clamp(11px,2.2vw,15px);
+      letter-spacing:1px;
+      white-space:nowrap;
+      text-shadow:0 0 10px rgba(255,105,180,.55);
+      opacity:.92;
+      font-weight:600;
+    }
+
+    .center-hint{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,calc(-50% + 145px));
+      z-index:13;
+      text-align:center;
+      color:#ffd9ee;
+      font-size:13px;
+      opacity:0;
+      transition:opacity .8s ease;
+      pointer-events:none;
+    }
+
+    .center-hint.show{
+      opacity:.85;
+    }
+
+    .menu{
+      position:absolute;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+      z-index:20;
+      width:min(92vw,820px);
+      display:flex;
+      justify-content:center;
+      gap:8px;
+      flex-wrap:wrap;
+      padding:10px;
+      border-radius:24px;
+      background:rgba(18,7,16,.42);
+      backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:var(--shadow);
+    }
+
+    .menu button{
+      border:none;
+      border-radius:999px;
+      padding:10px 14px;
+      color:white;
+      font-size:13px;
+      cursor:pointer;
+      background:
+        linear-gradient(135deg,rgba(255,79,163,.95),rgba(145,50,255,.9));
+      box-shadow:0 6px 18px rgba(255,79,163,.28);
+      transition:.2s ease;
+    }
+
+    .menu button:active{
+      transform:scale(.96);
+    }
+
+    .menu button.secondary{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      color:#ffe7f3;
+      box-shadow:none;
+    }
+
+    .hero{
+      position:absolute;
+      inset:0;
+      z-index:30;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+      background:
+        radial-gradient(circle at center,rgba(255,0,120,.18),transparent 30%),
+        linear-gradient(180deg,rgba(3,1,5,.2),rgba(3,1,5,.82));
+      transition:opacity 1s ease,visibility 1s ease;
+    }
+
+    .hero.hidden{
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+    }
+
+    .hero-card{
+      width:min(92vw,430px);
+      border-radius:28px;
+      padding:28px 22px;
+      background:
+        linear-gradient(180deg,rgba(38,11,28,.94),rgba(23,7,20,.92));
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.03) inset,
+        0 0 24px rgba(255,79,163,.25),
+        0 0 60px rgba(184,77,255,.18);
+      text-align:center;
+      backdrop-filter:blur(10px);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero-card::before{
+      content:"";
+      position:absolute;
+      inset:-40% -20% auto -20%;
+      height:180px;
+      background:
+        radial-gradient(circle,rgba(255,112,180,.2),transparent 60%);
+      filter:blur(20px);
+      pointer-events:none;
+    }
+
+    .mini-heart{
+      font-size:32px;
+      margin-bottom:10px;
+      display:block;
+      animation:pulse 2s infinite ease-in-out;
+    }
+
+    .hero-card h2{
+      font-size:clamp(28px,8vw,40px);
+      line-height:1.1;
+      margin-bottom:12px;
+      text-shadow:0 0 12px rgba(255,105,180,.4);
+    }
+
+    .hero-card p{
+      color:#ffe1ef;
+      line-height:1.55;
+      font-size:15px;
+      opacity:.95;
+      margin-bottom:20px;
+    }
+
+    .hero-buttons{
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+
+    .hero-buttons button{
+      border:none;
+      cursor:pointer;
+      border-radius:999px;
+      padding:12px 20px;
+      font-size:15px;
+      color:#fff;
+      transition:.2s ease;
+    }
+
+    .enter-btn{
+      background:linear-gradient(135deg,#ff5bac,#a74dff);
+      box-shadow:0 8px 22px rgba(255,79,163,.35);
+    }
+
+    .ghost-btn{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12)!important;
+      color:#ffe9f4;
+    }
+
+    .modal{
+      position:absolute;
+      inset:0;
+      z-index:40;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+      background:rgba(0,0,0,.62);
+      backdrop-filter:blur(7px);
+    }
+
+    .modal.show{
+      display:flex;
+    }
+
+    .modal-card{
+      width:min(92vw,460px);
+      max-height:85vh;
+      overflow:auto;
+      background:
+        linear-gradient(180deg,rgba(32,9,25,.97),rgba(17,5,16,.97));
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:28px;
+      padding:22px 18px 18px;
+      box-shadow:0 0 26px rgba(255,79,163,.25);
+    }
+
+    .modal-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .modal-top h3{
+      font-size:23px;
+      color:#fff3f9;
+    }
+
+    .close-btn{
+      border:none;
+      background:rgba(255,255,255,.08);
+      color:white;
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      font-size:18px;
+      cursor:pointer;
+      flex-shrink:0;
+    }
+
+    .modal-image{
+      width:100%;
+      border-radius:18px;
+      min-height:155px;
+      background:
+        linear-gradient(135deg,rgba(255,79,163,.14),rgba(184,77,255,.12)),
+        radial-gradient(circle at center,rgba(255,255,255,.06),transparent 60%);
+      border:1px solid rgba(255,255,255,.08);
+      margin-bottom:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#ffcfe7;
+      text-align:center;
+      padding:18px;
+      font-size:15px;
+    }
+
+    .modal-content p{
+      line-height:1.65;
+      color:#ffe4f1;
+      margin-bottom:12px;
+      font-size:15px;
+    }
+
+    .small{
+      font-size:13px!important;
+      opacity:.72;
+    }
+
+    .gift-box{
+      margin-top:10px;
+      padding:14px;
+      border-radius:18px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .gift-box a{
+      display:inline-block;
+      margin-top:10px;
+      text-decoration:none;
+      background:linear-gradient(135deg,#ff5bac,#a74dff);
+      color:white;
+      padding:11px 16px;
+      border-radius:999px;
+      font-size:14px;
+      box-shadow:0 8px 20px rgba(255,79,163,.25);
+    }
+
+    .floating-heart{
+      position:absolute;
+      color:#ff83c8;
+      opacity:.16;
+      animation:floatUp linear infinite;
+      user-select:none;
+      pointer-events:none;
+      z-index:4;
+    }
+
+    @keyframes floatUp{
+      0%{
+        transform:translateY(50px) scale(.8);
+        opacity:0;
+      }
+      15%{
+        opacity:.16;
+      }
+      100%{
+        transform:translateY(-120vh) scale(1.25);
+        opacity:0;
+      }
+    }
+
+    @keyframes pulse{
+      0%,100%{transform:scale(1);}
+      50%{transform:scale(1.12);}
+    }
+
+    @media(max-width:640px){
+      .top-title{
+        top:14px;
+      }
+
+      .menu{
+        bottom:12px;
+      }
+
+      .menu button{
+        font-size:12px;
+        padding:9px 12px;
+      }
+
+      .center-hint{
+        transform:translate(-50%,calc(-50% + 125px));
+        font-size:12px;
+      }
+
+      .hero-card{
+        padding:24px 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="app">
+
+  <canvas id="galaxy"></canvas>
+
+  <div class="noise"></div>
+
+  <div class="top-title">
+    <small>Birthday Galaxy</small>
+    <h1>For Anelya ✨</h1>
+    <div class="subtitle">
+      Маленькая вселенная, созданная специально для тебя
+    </div>
+  </div>
+
+  <div class="orbit-texts" id="orbitTexts"></div>
+
+  <div class="center-hint" id="centerHint">
+    Нажимай на кнопки снизу 💗
+  </div>
+
+  <div class="menu">
+    <button onclick="openCard('letter')">💌 Письмо</button>
+    <button onclick="openCard('wish')">🎂 Пожелание</button>
+    <button onclick="openCard('memory')">🌙 Воспоминание</button>
+    <button onclick="openCard('gift')">🎁 Подарок</button>
+    <button class="secondary" onclick="resetView()">↺ Сначала</button>
+  </div>
+
+  <div class="hero" id="hero">
+    <div class="hero-card">
+
+      <span class="mini-heart">💖</span>
+
+      <h2>
+        A Galaxy<br>
+        for Anelya
+      </h2>
+
+      <p>
+        С днём рождения, <b>Anelya</b>!<br><br>
+
+        Эта маленькая галактика создана специально для тебя.
+        Пусть каждое сияние здесь напоминает о тёплых моментах,
+        мечтах и людях, которые тебя любят.
+      </p>
+
+      <div class="hero-buttons">
+        <button class="enter-btn" id="enterBtn">
+          Войти в галактику ✨
+        </button>
+
+        <button class="ghost-btn" onclick="openCard('letter')">
+          Открыть письмо 💌
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+
+    <div class="modal-card">
+
+      <div class="modal-top">
+        <h3 id="modalTitle">
+          Заголовок
+        </h3>
+
+        <button class="close-btn" onclick="closeModal()">
+          ✕
+        </button>
+      </div>
+
+      <div class="modal-image" id="modalImage">
+        Здесь можно будет добавить фото 💗
+      </div>
+
+      <div class="modal-content" id="modalContent"></div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+const canvas = document.getElementById("galaxy");
+const ctx = canvas.getContext("2d");
+
+let w;
+let h;
+let cx;
+let cy;
+let dpr;
+
+let time = 0;
+
+let zoom = 0.62;
+let targetZoom = 0.62;
+
+const STAR_COUNT = 240;
+const GALAXY_COUNT = 1200;
+const HEART_COUNT = 1700;
+
+const backgroundStars = [];
+const galaxyDust = [];
+const heartParticles = [];
+
+const orbitTextsData = [
+  "HAPPY BIRTHDAY",
+  "ANELYA",
+  "ТЫ — МАГИЯ",
+  "СИЯЙ ЯРКО",
+  "БУДЬ СЧАСТЛИВА",
+  "С ЛЮБОВЬЮ",
+  "ТЫ ЗАСЛУЖИВАЕШЬ ЛУЧШЕЕ",
+  "FOREVER ♡"
+];
+
+const cards = {
+
+  letter:{
+    title:"💌 Письмо для Anelya",
+
+    image:
+    "Сюда потом можно добавить ваше общее фото или красивую гифку 💗",
+
+    content:`
+      <p>
+        Дорогая Anelya, с днём рождения! 💗
+      </p>
+
+      <p>
+        Я хочу, чтобы этот год принёс тебе много счастливых моментов,
+        новых впечатлений, спокойствия и людей, рядом с которыми
+        ты всегда сможешь быть собой.
+      </p>
+
+      <p>
+        Спасибо тебе за моменты, которые мы уже прожили вместе.
+        Надеюсь, впереди их будет ещё очень много.
+      </p>
+
+      <p>
+        Оставайся такой же яркой, красивой и особенной.
+        Пусть всё, о чём ты мечтаешь, однажды станет реальностью.
+      </p>
+
+      <p class="small">
+        Тут потом можешь написать своё настоящее большое письмо.
+      </p>
+    `
+  },
+
+  wish:{
+    title:"🎂 Для тебя",
+
+    image:
+    "Здесь можно поставить фото, открытку или красивую картинку ✨",
+
+    content:`
+      <p>
+        Я желаю тебе:
+      </p>
+
+      <p>
+        ✦ много счастливых дней;<br>
+        ✦ исполнения желаний;<br>
+        ✦ любви;<br>
+        ✦ здоровья;<br>
+        ✦ путешествий;<br>
+        ✦ вдохновения;<br>
+        ✦ настоящих людей рядом.
+      </p>
+
+      <p>
+        И самое главное — чтобы ты всегда выбирала то,
+        что делает счастливой именно тебя.
+      </p>
+    `
+  },
+
+  memory:{
+    title:"🌙 Наши моменты",
+
+    image:
+    "Сюда можешь добавить вашу любимую фотографию 📸",
+
+    content:`
+      <p>
+        Здесь будет одно из наших воспоминаний.
+      </p>
+
+      <p>
+        Например: прогулка, смешная история, поездка,
+        ваша переписка или момент,
+        который хочется сохранить надолго.
+      </p>
+
+      <p class="small">
+        Просто замени этот текст на свою историю.
+      </p>
+    `
+  },
+
+  gift:{
+    title:"🎁 Для тебя есть кое-что",
+
+    image:
+    "Здесь можно поставить фотографию подарка, QR-код или просто красивую картинку 🎁",
+
+    content:`
+      <p>
+        Конечно же, я не могла оставить эту галактику
+        без маленького сюрприза.
+      </p>
+
+      <div class="gift-box">
+
+        <p>
+          Нажми сюда, когда будешь готова 💗
+        </p>
+
+        <a href="https://example.com" target="_blank">
+          Открыть подарок ✨
+        </a>
+
+      </div>
+
+      <p class="small">
+        Потом вместо https://example.com вставим твою настоящую ссылку.
+      </p>
+    `
+  }
+
+};
+
+function resizeCanvas(){
+
+  dpr = Math.min(window.devicePixelRatio || 1,2);
+
+  w = window.innerWidth;
+  h = window.innerHeight;
+
+  cx = w / 2;
+  cy = h / 2;
+
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+
+  canvas.style.width = w + "px";
+  canvas.style.height = h + "px";
+
+  ctx.setTransform(
+    dpr,
+    0,
+    0,
+    dpr,
+    0,
+    0
+  );
+
+}
+
+function rand(min,max){
+  return Math.random() * (max-min) + min;
+}
+
+function createBackgroundStars(){
+
+  backgroundStars.length = 0;
+
+  for(let i=0;i<STAR_COUNT;i++){
+
+    backgroundStars.push({
+
+      x:Math.random()*w,
+      y:Math.random()*h,
+
+      r:Math.random()*1.5+.2,
+
+      a:Math.random()*.8+.15,
+
+      tw:Math.random()*Math.PI*2
+
+    });
+
+  }
+
+}
+
+function createGalaxyDust(){
+
+  galaxyDust.length = 0;
+
+  for(let i=0;i<GALAXY_COUNT;i++){
+
+    const arm = i % 3;
+
+    const dist =
+      Math.pow(Math.random(),.72)
+      * Math.min(w,h)
+      * .35;
+
+    const angle =
+      Math.random()
+      * Math.PI
+      * 2;
+
+    galaxyDust.push({
+
+      dist,
+      angle,
+      arm,
+
+      size:rand(.6,2.4),
+
+      alpha:rand(.15,.95),
+
+      speed:rand(.0008,.003),
+
+      tint:
+        Math.random()>.45
+        ? "pink"
+        : "purple",
+
+      z:rand(.55,1.25)
+
+    });
+
+  }
+
+}
+
+function createHeartParticles(){
+
+  heartParticles.length = 0;
+
+  for(let i=0;i<HEART_COUNT;i++){
+
+    const t =
+      Math.random()
+      * Math.PI
+      * 2;
+
+    const scale =
+      rand(.8,1.15);
+
+    const x =
+      16
+      * Math.pow(
+        Math.sin(t),
+        3
+      );
+
+    const y =
+      -(
+        13*Math.cos(t)
+        -5*Math.cos(2*t)
+        -2*Math.cos(3*t)
+        -Math.cos(4*t)
+      );
+
+    const fill =
+      Math.random();
+
+    const fx =
+      x
+      * scale
+      * (.35 + fill*.65);
+
+    const fy =
+      y
+      * scale
+      * (.35 + fill*.65);
+
+    heartParticles.push({
+
+      hx:fx,
+      hy:fy,
+
+      size:rand(.8,2.4),
+
+      alpha:rand(.4,1),
+
+      phase:
+        rand(
+          0,
+          Math.PI*2
+        )
+
+    });
+
+  }
+
+}
+
+function initOrbitTexts(){
+
+  const wrap =
+    document.getElementById(
+      "orbitTexts"
+    );
+
+  wrap.innerHTML="";
+
+  orbitTextsData.forEach(
+    (text,i)=>{
+
+      const el =
+        document.createElement(
+          "div"
+        );
+
+      el.className =
+        "orbit-word";
+
+      el.textContent =
+        text;
+
+      wrap.appendChild(
+        el
+      );
+
+    }
+  );
+
+}
+
+function updateOrbitTexts(){
+
+  const els =
+    document.querySelectorAll(
+      ".orbit-word"
+    );
+
+  const radiusX =
+    Math.min(w,h)
+    * .32
+    * zoom;
+
+  const radiusY =
+    Math.min(w,h)
+    * .18
+    * zoom;
+
+  els.forEach(
+    (el,i)=>{
+
+      const ang =
+        time*.28
+        +
+        (i/els.length)
+        * Math.PI
+        * 2;
+
+      const x =
+        cx
+        +
+        Math.cos(ang)
+        * radiusX;
+
+      const y =
+        cy
+        +
+        Math.sin(ang)
+        * radiusY
+        +
+        80;
+
+      const scale =
+        .8
+        +
+        (
+          Math.sin(ang)+1
+        )
+        *.15;
+
+      el.style.left =
+        x+"px";
+
+      el.style.top =
+        y+"px";
+
+      el.style.transform =
+        `translate(-50%,-50%) scale(${scale})`;
+
+      el.style.opacity =
+        .42
+        +
+        (
+          Math.sin(ang+1)+1
+        )
+        *.22;
+
+    }
+  );
+
+}
+
+function drawBackground(){
+
+  const grad =
+    ctx.createRadialGradient(
+      cx,
+      cy,
+      0,
+      cx,
+      cy,
+      Math.max(w,h)
+      *.75
+    );
+
+  grad.addColorStop(
+    0,
+    "#180714"
+  );
+
+  grad.addColorStop(
+    .35,
+    "#0d0410"
+  );
+
+  grad.addColorStop(
+    .7,
+    "#06030a"
+  );
+
+  grad.addColorStop(
+    1,
+    "#020103"
+  );
+
+  ctx.fillStyle =
+    grad;
+
+  ctx.fillRect(
+    0,
+    0,
+    w,
+    h
+  );
+
+  backgroundStars.forEach(
+    s=>{
+
+      const alpha =
+        s.a
+        *(
+          .65
+          +
+          Math.sin(
+            time*1.4
+            +
+            s.tw
+          )
+          *.35
+        );
+
+      ctx.beginPath();
+
+      ctx.fillStyle =
+        `rgba(255,255,255,${alpha})`;
+
+      ctx.arc(
+        s.x,
+        s.y,
+        s.r,
+        0,
+        Math.PI*2
+      );
+
+      ctx.fill();
+
+    }
+  );
+
+}
+
+function drawGalaxy(){
+
+  const baseScale =
+    Math.min(w,h)
+    / 430
+    * zoom;
+
+  ctx.save();
+
+  ctx.translate(
+    cx,
+    cy+45
+  );
+
+  const core =
+    ctx.createRadialGradient(
+      0,
+      0,
+      0,
+      0,
+      0,
+      130*baseScale
+    );
+
+  core.addColorStop(
+    0,
+    "rgba(255,255,255,.98)"
+  );
+
+  core.addColorStop(
+    .06,
+    "rgba(255,190,225,.92)"
+  );
+
+  core.addColorStop(
+    .16,
+    "rgba(255,64,150,.8)"
+  );
+
+  core.addColorStop(
+    .38,
+    "rgba(180,77,255,.25)"
+  );
+
+  core.addColorStop(
+    1,
+    "rgba(0,0,0,0)"
+  );
+
+  ctx.fillStyle =
+    core;
+
+  ctx.beginPath();
+
+  ctx.arc(
+    0,
+    0,
+    130*baseScale,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  galaxyDust.forEach(
+    (p,idx)=>{
+
+      const spiral =
+        p.angle
+        +
+        time*.5
+        +
+        p.dist*.025
+        +
+        p.arm
+        *(Math.PI*2/3);
+
+      const dist =
+        p.dist
+        *(
+          .78
+          +
+          p.z*.28
+        )
+        *zoom;
+
+      const x =
+        Math.cos(spiral)
+        * dist;
+
+      const y =
+        Math.sin(spiral)
+        * dist
+        * .42;
+
+      const alpha =
+        p.alpha
+        *(
+          .55
+          +
+          Math.sin(
+            time*1.5
+            +
+            idx*.01
+          )
+          *.18
+        );
+
+      const color =
+        p.tint==="pink"
+        ?
+        `rgba(255,85,175,${alpha})`
+        :
+        `rgba(185,110,255,${alpha})`;
+
+      ctx.beginPath();
+
+      ctx.fillStyle =
+        color;
+
+      ctx.arc(
+        x,
+        y,
+        p.size
+        *(
+          .6
+          +
+          zoom*.65
+        ),
+        0,
+        Math.PI*2
+      );
+
+      ctx.fill();
+
+    }
+  );
+
+  ctx.strokeStyle =
+    "rgba(255,75,160,.12)";
+
+  ctx.lineWidth =
+    3;
+
+  for(
+    let r=35;
+    r<130;
+    r+=22
+  ){
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+      0,
+      0,
+      r*zoom,
+      r*.45*zoom,
+      0,
+      0,
+      Math.PI*2
+    );
+
+    ctx.stroke();
+
+  }
+
+  ctx.beginPath();
+
+  ctx.fillStyle =
+    "rgba(0,0,0,.92)";
+
+  ctx.arc(
+    0,
+    0,
+    11+7*zoom,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  heartParticles.forEach(
+    (p,idx)=>{
+
+      const sx =
+        p.hx
+        * 7.6
+        * baseScale;
+
+      const sy =
+        p.hy
+        * 7.6
+        * baseScale
+        -
+        118*baseScale;
+
+      const twinkle =
+        .65
+        +
+        Math.sin(
+          time*2.6
+          +
+          p.phase
+          +
+          idx*.002
+        )
+        *.35;
+
+      const px =
+        sx
+        +
+        Math.sin(
+          time
+          +
+          idx*.03
+        )
+        *.5;
+
+      const py =
+        sy
+        +
+        Math.cos(
+          time*.8
+          +
+          idx*.02
+        )
+        *.45;
+
+      ctx.beginPath();
+
+      ctx.fillStyle =
+        `rgba(
+          255,
+          ${120+Math.floor(twinkle*70)},
+          ${190+Math.floor(twinkle*25)},
+          ${p.alpha*.85}
+        )`;
+
+      ctx.arc(
+        px,
+        py,
+        p.size
+        *(
+          .55
+          +
+          zoom*.45
+        ),
+        0,
+        Math.PI*2
+      );
+
+      ctx.fill();
+
+    }
+  );
+
+  ctx.restore();
+
+}
+
+function animate(){
+
+  time += .012;
+
+  zoom +=
+    (
+      targetZoom
+      -
+      zoom
+    )
+    *.03;
+
+  drawBackground();
+
+  drawGalaxy();
+
+  updateOrbitTexts();
+
+  requestAnimationFrame(
+    animate
+  );
+
+}
+
+function enterGalaxy(){
+
+  document
+  .getElementById("hero")
+  .classList
+  .add("hidden");
+
+  document
+  .getElementById("centerHint")
+  .classList
+  .add("show");
+
+  targetZoom =
+    1.08;
+
+}
+
+function resetView(){
+
+  document
+  .getElementById("hero")
+  .classList
+  .remove("hidden");
+
+  document
+  .getElementById("centerHint")
+  .classList
+  .remove("show");
+
+  targetZoom =
+    .62;
+
+  closeModal();
+
+}
+
+function openCard(key){
+
+  const card =
+    cards[key];
+
+  document
+  .getElementById("modalTitle")
+  .textContent =
+    card.title;
+
+  document
+  .getElementById("modalImage")
+  .innerHTML =
+    card.image;
+
+  document
+  .getElementById("modalContent")
+  .innerHTML =
+    card.content;
+
+  document
+  .getElementById("modal")
+  .classList
+  .add("show");
+
+}
+
+function closeModal(){
+
+  document
+  .getElementById("modal")
+  .classList
+  .remove("show");
+
+}
+
+document
+.getElementById("enterBtn")
+.addEventListener(
+  "click",
+  enterGalaxy
+);
+
+document
+.getElementById("modal")
+.addEventListener(
+  "click",
+  e=>{
+
+    if(
+      e.target.id
+      ===
+      "modal"
+    ){
+      closeModal();
+    }
+
+  }
+);
+
+function createFloatingHearts(){
+
+  const app =
+    document.getElementById(
+      "app"
+    );
+
+  for(
+    let i=0;
+    i<12;
+    i++
+  ){
+
+    const span =
+      document.createElement(
+        "span"
+      );
+
+    span.className =
+      "floating-heart";
+
+    span.textContent =
+      ["❤","♡","💗","💕"]
+      [
+        Math.floor(
+          Math.random()*4
+        )
+      ];
+
+    span.style.left =
+      Math.random()*100
+      +"vw";
+
+    span.style.bottom =
+      (
+        -10
+        -
+        Math.random()*20
+      )
+      +"px";
+
+    span.style.fontSize =
+      (
+        16
+        +
+        Math.random()*22
+      )
+      +"px";
+
+    span.style.animationDuration =
+      (
+        9
+        +
+        Math.random()*9
+      )
+      +"s";
+
+    span.style.animationDelay =
+      (
+        Math.random()*6
+      )
+      +"s";
+
+    app.appendChild(
+      span
+    );
+
+  }
+
+}
+
+window.addEventListener(
+  "resize",
+  ()=>{
+
+    resizeCanvas();
+
+    createBackgroundStars();
+
+    createGalaxyDust();
+
+  }
+);
+
+resizeCanvas();
+
+createBackgroundStars();
+
+createGalaxyDust();
+
+createHeartParticles();
+
+initOrbitTexts();
+
+createFloatingHearts();
+
+animate();
+
+</script>
+
+</body>
+</html>
